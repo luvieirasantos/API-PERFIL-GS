@@ -1,64 +1,45 @@
 package com.conexaosolidaria.api_perfil.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 
 @Entity
-@Table(name = "PERFIL")
-@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
+@Table(name = "perfil")
 public class Perfil {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    // Relacionamento com a tabela USUARIO via foreign key user_id
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", nullable = false)
-    private Usuario usuario;
-
-    @Column(name = "nickname", nullable = false, length = 100)
     private String nickname;
 
-    @Column(name = "blood_type", nullable = false, length = 5)
+    @Column(name = "blood_type")
     private String bloodType;
 
-    @Column(name = "allergies", length = 200)
     private String allergies;
 
-    @Column(name = "medical_conditions", length = 200)
+    @Column(name = "medical_conditions")
     private String medicalConditions;
 
-    @Column(name = "continuous_medication", length = 200)
+    @Column(name = "continuous_medication")
     private String continuousMedication;
 
-    @Column(name = "observations", length = 255)
     private String observations;
 
-    @Column(name = "avatar_uri", length = 255)
+    @Column(name = "avatar_uri")
     private String avatarUrl;
 
-    @Column(name = "emergency_contact_name", length = 100)
+    @Column(name = "emergency_contact_name")
     private String emergencyContactName;
 
-    @Column(name = "emergency_contact_phone", length = 20)
+    @Column(name = "emergency_contact_phone")
     private String emergencyContactPhone;
 
-    // GETTERS e SETTERS
     public Long getId() {
         return id;
     }
 
     public void setId(Long id) {
         this.id = id;
-    }
-
-    public Usuario getUsuario() {
-        return usuario;
-    }
-
-    public void setUsuario(Usuario usuario) {
-        this.usuario = usuario;
     }
 
     public String getNickname() {
@@ -132,4 +113,5 @@ public class Perfil {
     public void setEmergencyContactPhone(String emergencyContactPhone) {
         this.emergencyContactPhone = emergencyContactPhone;
     }
+// Getters e setters omitidos por brevidade
 }

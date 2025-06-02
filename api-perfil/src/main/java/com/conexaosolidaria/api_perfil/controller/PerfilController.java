@@ -1,81 +1,64 @@
 package com.conexaosolidaria.api_perfil.controller;
 
 import com.conexaosolidaria.api_perfil.model.Perfil;
-import com.conexaosolidaria.api_perfil.service.PerfilService;
-import jakarta.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.conexaosolidaria.api_perfil.repository.PerfilRepository;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.web.PageableDefault;
-import org.springframework.web.bind.annotation.RequestParam;
-import com.conexaosolidaria.api_perfil.repository.PerfilRepository;
-
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/perfis")
-@CrossOrigin(origins = "*") // Permite acesso do app mobile/front-end
 public class PerfilController {
 
-    @Autowired
-    private PerfilRepository perfilRepository;
+    private final PerfilRepository perfilRepository;
 
-
-    @Autowired
-    private PerfilService service;
+    public PerfilController(PerfilRepository perfilRepository) {
+        this.perfilRepository = perfilRepository;
+    }
 
     @GetMapping
-    public List<Perfil> listarTodos() {
-        return service.listarTodos();
+    public List<Perfil> listarPerfis() {
+        return perfilRepository.findAll();
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Perfil> buscarPorId(@PathVariable Long id) {
-        Optional<Perfil> perfil = service.buscarPorId(id);
-        return perfil.map(ResponseEntity::ok)
-                .orElseGet(() -> ResponseEntity.notFound().build());
+    public ResponseEntity<Perfil> buscarPerfilPorId(@PathVariable Long id) {
+        return perfilRepository.findById(id)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
     }
 
     @PostMapping
-    public ResponseEntity<Perfil> criar(@RequestBody @Valid Perfil perfil) {
-        Perfil criado = service.criar(perfil);
-        return ResponseEntity.ok(criado);
-    }
-
-    // Endpoint com paginação e ordenação
-    @GetMapping("/paginado")
-    public Page<Perfil> listarPaginado(
-            @PageableDefault(size = 10, sort = "id") Pageable pageable,
-            @RequestParam(required = false) String bloodType // Exemplo de filtro
-    ) {
-        if (bloodType != null && !bloodType.isEmpty()) {
-            return perfilRepository.findByBloodType(bloodType, pageable);
-        }
-        return perfilRepository.findAll(pageable);
+    public Perfil criarPerfil(@RequestBody Perfil perfil) {
+        return perfilRepository.save(perfil);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Perfil> atualizar(@PathVariable Long id, @RequestBody @Valid Perfil perfil) {
-        Optional<Perfil> existente = service.buscarPorId(id);
-        if (existente.isEmpty()) {
-            return ResponseEntity.notFound().build();
-        }
-        perfil.setId(id);
-        Perfil atualizado = service.atualizar(id, perfil);
-        return ResponseEntity.ok(atualizado);
+    public ResponseEntity<Perfil> atualizarPerfil(@PathVariable Long id, @RequestBody Perfil perfilAtualizado) {
+        return perfilRepository.findById(id)
+                .map(perfil -> {
+                    perfil.setNickname(perfilAtualizado.getNickname());
+                    perfil.setBloodType(perfilAtualizado.getBloodType());
+                    perfil.setAllergies(perfilAtualizado.getAllergies());
+                    perfil.setMedicalConditions(perfilAtualizado.getMedicalConditions());
+                    perfil.setContinuousMedication(perfilAtualizado.getContinuousMedication());
+                    perfil.setObservations(perfilAtualizado.getObservations());
+                    perfil.setAvatarUrl(perfilAtualizado.getAvatarUrl());
+                    perfil.setEmergencyContactName(perfilAtualizado.getEmergencyContactName());
+                    perfil.setEmergencyContactPhone(perfilAtualizado.getEmergencyContactPhone());
+                    return ResponseEntity.ok(perfilRepository.save(perfil));
+                })
+                .orElse(ResponseEntity.notFound().build());
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deletar(@PathVariable Long id) {
-        Optional<Perfil> existente = service.buscarPorId(id);
-        if (existente.isEmpty()) {
+    public ResponseEntity<Void> deletarPerfil(@PathVariable Long id) {
+        if (perfilRepository.existsById(id)) {
+            perfilRepository.deleteById(id);
+            return ResponseEntity.noContent().build();
+        } else {
             return ResponseEntity.notFound().build();
         }
-        service.deletar(id);
-        return ResponseEntity.noContent().build();
     }
 }
