@@ -1,6 +1,9 @@
 package com.conexaosolidaria.api_perfil.model;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Size;
 
 @Entity
 @Table(name = "perfil")
@@ -10,16 +13,25 @@ public class Perfil {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Size(max = 100)
     private String nickname;
 
+    @NotBlank
+    @Size(max = 5)
+    @Pattern(
+            regexp = "^(A\\+|A-|B\\+|B-|AB\\+|AB-|O\\+|O-)$",
+            message = "Tipo sanguíneo deve ser um dos seguintes: A+, A-, B+, B-, AB+, AB-, O+, O-"
+    )
     @Column(name = "blood_type")
     private String bloodType;
 
     private String allergies;
 
+    @Size(max = 200)
     @Column(name = "medical_conditions")
     private String medicalConditions;
 
+    @Size(max = 200)
     @Column(name = "continuous_medication")
     private String continuousMedication;
 
@@ -113,5 +125,4 @@ public class Perfil {
     public void setEmergencyContactPhone(String emergencyContactPhone) {
         this.emergencyContactPhone = emergencyContactPhone;
     }
-// Getters e setters omitidos por brevidade
 }
